@@ -1,5 +1,6 @@
 import { Album } from './albums/albums.model';
 import { Artist } from './artists/artists.model';
+import { Favorites } from './favorites/favorites.model';
 import { Track } from './tracks/tracks.model';
 import { User } from './users/users.model';
 
@@ -8,4 +9,9 @@ export class DataBase {
   ARTISTS: Artist[] = [];
   TRACKS: Track[] = [];
   USERS: User[] = [];
+  FAVORITES: Favorites = {
+    albums: [],
+    artists: [],
+    tracks: [],
+  };
 }
