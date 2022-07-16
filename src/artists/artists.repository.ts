@@ -39,6 +39,14 @@ export class ArtistsRepository {
   }
 
   async delete(id: string) {
-    this.db.ARTISTS = this.db.ARTISTS.filter((artist) => artist.id !== id);
+    let isDeleted = false;
+    this.db.ARTISTS = this.db.ARTISTS.filter((artist) => {
+      if (artist.id === id) {
+        isDeleted = true;
+        return false;
+      }
+      return true;
+    });
+    return isDeleted;
   }
 }

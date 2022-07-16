@@ -15,6 +15,14 @@ export class FavoritesRepository {
   }
 
   async delete(type: keyof Favorites, id: string) {
-    this.db.FAVORITES[type].filter((favoriteId) => favoriteId !== id);
+    let isDeleted = false;
+    this.db.FAVORITES[type] = this.db.FAVORITES[type].filter((favoriteId) => {
+      if (favoriteId === id) {
+        isDeleted = true;
+        return false;
+      }
+      return true;
+    });
+    return isDeleted;
   }
 }

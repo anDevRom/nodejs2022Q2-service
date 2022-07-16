@@ -3,6 +3,9 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpException,
+  HttpStatus,
   Param,
   Post,
   Put,
@@ -10,33 +13,65 @@ import {
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { UsersService } from './users.service';
+import { validate } from 'uuid';
 
 @Controller('user')
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @Get()
-  getAllUsers() {
-    return this.usersService.getAll();
+  async getAllUsers() {
+    return await this.usersService.getAll();
   }
 
   @Get('/:id')
-  getOneUser(@Param('id') id: string) {
-    return this.usersService.getOne(id);
+  async getOneUser(@Param('id') id: string) {
+    if (!validate(id)) {
+      throw new HttpException('Invalid id', HttpStatus.BAD_REQUEST);
+    }
+    const user = await this.usersService.getOne(id);
+
+    if (!user) {
+      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    }
+
+    return user;
   }
 
+  @HttpCode(201)
   @Post()
-  createUser(@Body() body: CreateUserDto) {
-    return this.usersService.create(body);
+  async createUser(@Body() body: CreateUserDto) {
+    return await this.usersService.create(body);
   }
 
   @Put('/:id')
-  updateUser(@Param('id') id: string, @Body() body: UpdatePasswordDto) {
-    return this.usersService.update(id, body);
+  async updateUser(@Param('id') id: string, @Body() body: UpdatePasswordDto) {
+    if (!validate(id)) {
+      throw new HttpException('Invalid id', HttpStatus.BAD_REQUEST);
+    }
+    const user = await this.usersService.update(id, body);
+
+    if (user === 'Invalid old password') {
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
+
+    if (!user) {
+      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    }
+
+    return user;
   }
 
+  @HttpCode(204)
   @Delete('/:id')
-  deleteUser(@Param('id') id: string) {
-    return this.usersService.delete(id);
+  async deleteUser(@Param('id') id: string) {
+    if (!validate(id)) {
+      throw new HttpException('Invalid id', HttpStatus.BAD_REQUEST);
+    }
+    const isDeleted = await this.usersService.delete(id);
+
+    if (!isDeleted) {
+      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+    }
   }
 }

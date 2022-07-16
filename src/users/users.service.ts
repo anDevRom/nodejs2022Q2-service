@@ -24,23 +24,35 @@ export class UsersService {
       id,
       createdAt,
       updatedAt: createdAt,
-      version: 0,
+      version: 1,
       ...dto,
     };
 
-    return await this.usersRepository.create(entity);
+    const user = await this.usersRepository.create(entity);
+
+    return { ...user, password: undefined };
   }
 
   async update(id: string, dto: UpdatePasswordDto) {
-    const { password: oldPassowrd, version } = await this.getOne(id);
+    const user = await this.getOne(id);
 
-    if (oldPassowrd === dto.oldPassowrd) {
-      return await this.usersRepository.update(
+    if (!user) {
+      return;
+    }
+
+    const { password: oldPassword, version } = user;
+
+    if (oldPassword === dto.oldPassword) {
+      const user = await this.usersRepository.update(
         id,
         dto.newPassword,
         Date.now(),
         version + 1,
       );
+
+      return { ...user, password: undefined };
+    } else {
+      return 'Invalid old password';
     }
   }
 

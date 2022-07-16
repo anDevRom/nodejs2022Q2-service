@@ -39,6 +39,14 @@ export class TracksRepository {
   }
 
   async delete(id: string) {
-    this.db.TRACKS = this.db.TRACKS.filter((track) => track.id !== id);
+    let isDeleted = false;
+    this.db.TRACKS = this.db.TRACKS.filter((track) => {
+      if (track.id === id) {
+        isDeleted = true;
+        return false;
+      }
+      return true;
+    });
+    return isDeleted;
   }
 }

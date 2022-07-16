@@ -39,6 +39,14 @@ export class AlbumsRepository {
   }
 
   async delete(id: string) {
-    this.db.ALBUMS = this.db.ALBUMS.filter((album) => album.id !== id);
+    let isDeleted = false;
+    this.db.ALBUMS = this.db.ALBUMS.filter((album) => {
+      if (album.id === id) {
+        isDeleted = true;
+        return false;
+      }
+      return true;
+    });
+    return isDeleted;
   }
 }

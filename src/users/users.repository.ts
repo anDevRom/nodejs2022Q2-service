@@ -48,6 +48,14 @@ export class UsersRepository {
   }
 
   async delete(id: string) {
-    this.db.USERS = this.db.USERS.filter((user) => user.id !== id);
+    let isDeleted = false;
+    this.db.USERS = this.db.USERS.filter((user) => {
+      if (user.id === id) {
+        isDeleted = true;
+        return false;
+      }
+      return true;
+    });
+    return isDeleted;
   }
 }
