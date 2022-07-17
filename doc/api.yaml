@@ -69,7 +69,6 @@ components:
         - id
         - name
         - year
-        - artistId
     Track:
       type: object
       properties:
