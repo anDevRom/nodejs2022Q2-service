@@ -1,13 +1,24 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { AlbumsService } from 'src/albums/albums.service';
 import { ArtistsService } from 'src/artists/artists.service';
 import { TracksService } from 'src/tracks/tracks.service';
-import { FavoritesRepository } from './favorites.repository';
+import { Repository } from 'typeorm';
+import {
+  AlbumsFavorites,
+  ArtistsFavorites,
+  TracksFavorites,
+} from './favorites.entity';
 
 @Injectable()
 export class FavoritesService {
   constructor(
-    private favoritesRepository: FavoritesRepository,
+    @InjectRepository(AlbumsFavorites)
+    private albumsFavoritesRepository: Repository<AlbumsFavorites>,
+    @InjectRepository(ArtistsFavorites)
+    private artistsFavoritesRepository: Repository<ArtistsFavorites>,
+    @InjectRepository(TracksFavorites)
+    private tracksFavoritesRepository: Repository<TracksFavorites>,
     @Inject(forwardRef(() => AlbumsService))
     private albumsService: AlbumsService,
     @Inject(forwardRef(() => ArtistsService))
@@ -17,31 +28,19 @@ export class FavoritesService {
   ) {}
 
   async getAllFavorites() {
-    const [albums, artists, tracks] = await Promise.all([
-      this.getAlbumsFavorites(),
-      this.getArtistsFavorites(),
-      this.getTracksFavorites(),
+    const [albumsIds, artistsIds, tracksIds] = await Promise.all([
+      this.albumsFavoritesRepository.find(),
+      this.artistsFavoritesRepository.find(),
+      this.tracksFavoritesRepository.find(),
     ]);
 
-    return { artists, albums, tracks };
-  }
+    const [albums, artists, tracks] = await Promise.all([
+      Promise.all(albumsIds.map(({ id }) => this.albumsService.getOne(id))),
+      Promise.all(artistsIds.map(({ id }) => this.artistsService.getOne(id))),
+      Promise.all(tracksIds.map(({ id }) => this.tracksService.getOne(id))),
+    ]);
 
-  async getAlbumsFavorites() {
-    const ids = await this.favoritesRepository.findAll('albums');
-
-    return await Promise.all(ids.map((id) => this.albumsService.getOne(id)));
-  }
-
-  async getArtistsFavorites() {
-    const ids = await this.favoritesRepository.findAll('artists');
-
-    return await Promise.all(ids.map((id) => this.artistsService.getOne(id)));
-  }
-
-  async getTracksFavorites() {
-    const ids = await this.favoritesRepository.findAll('tracks');
-
-    return await Promise.all(ids.map((id) => this.tracksService.getOne(id)));
+    return { albums, artists, tracks };
   }
 
   async addAlbumToFavorite(id: string) {
@@ -51,7 +50,7 @@ export class FavoritesService {
       return 'Not found';
     }
 
-    await this.favoritesRepository.create('albums', id);
+    await this.albumsFavoritesRepository.save({ id });
   }
 
   async addArtistToFavorite(id: string) {
@@ -61,7 +60,7 @@ export class FavoritesService {
       return 'Not found';
     }
 
-    await this.favoritesRepository.create('artists', id);
+    await this.artistsFavoritesRepository.save({ id });
   }
 
   async addTrackToFavorite(id: string) {
@@ -71,18 +70,29 @@ export class FavoritesService {
       return 'Not found';
     }
 
-    await this.favoritesRepository.create('tracks', id);
+    await this.tracksFavoritesRepository.save({ id });
   }
 
   async removeAlbumFromFavorite(id: string) {
-    return await this.favoritesRepository.delete('albums', id);
+    const { affected: isDeleted } = await this.albumsFavoritesRepository.delete(
+      id,
+    );
+
+    return isDeleted;
   }
 
   async removeArtistFromFavorite(id: string) {
-    return await this.favoritesRepository.delete('artists', id);
+    const { affected: isDeleted } =
+      await this.artistsFavoritesRepository.delete(id);
+
+    return isDeleted;
   }
 
   async removeTrackFromFavorite(id: string) {
-    return await this.favoritesRepository.delete('tracks', id);
+    const { affected: isDeleted } = await this.tracksFavoritesRepository.delete(
+      id,
+    );
+
+    return isDeleted;
   }
 }

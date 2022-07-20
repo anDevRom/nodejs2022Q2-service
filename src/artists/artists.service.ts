@@ -1,16 +1,17 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { ArtistsRepository } from './artists.repository';
 import { CreateArtistDto } from './dto/create-artist.dto';
-import { v4 as generateId } from 'uuid';
-import { Artist } from './artists.model';
+import { Artist } from './artists.entity';
 import { UpdateArtistDto } from './dto/update-artist.dto';
 import { TracksService } from 'src/tracks/tracks.service';
 import { FavoritesService } from 'src/favorites/favorites.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class ArtistsService {
   constructor(
-    private artistsRepository: ArtistsRepository,
+    @InjectRepository(Artist)
+    private artistsRepository: Repository<Artist>,
     @Inject(forwardRef(() => TracksService))
     private tracksService: TracksService,
     @Inject(forwardRef(() => FavoritesService))
@@ -18,26 +19,30 @@ export class ArtistsService {
   ) {}
 
   async getAll() {
-    return await this.artistsRepository.findAll();
+    return await this.artistsRepository.find();
   }
 
   async getOne(id: string) {
-    return await this.artistsRepository.findOne(id);
+    return await this.artistsRepository.findOneBy({ id });
   }
 
   async create(dto: CreateArtistDto) {
-    const id = generateId();
-    const entity: Artist = { id, ...dto };
-
-    return await this.artistsRepository.create(entity);
+    return await this.artistsRepository.save(dto);
   }
 
   async update(id: string, dto: UpdateArtistDto) {
-    return await this.artistsRepository.update(id, dto);
+    return await this.artistsRepository
+      .createQueryBuilder()
+      .update(Artist)
+      .set(dto)
+      .where('id = :id', { id })
+      .returning('*')
+      .execute()
+      .then((r) => r.raw[0]);
   }
 
   async delete(id: string) {
-    const isDeleted = await this.artistsRepository.delete(id);
+    const { affected: isDeleted } = await this.artistsRepository.delete(id);
 
     if (isDeleted) {
       return await Promise.all([

@@ -1,36 +1,26 @@
 import { Injectable } from '@nestjs/common';
-import { v4 as generateId } from 'uuid';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
-import { User } from './users.model';
-import { UsersRepository } from './users.repository';
+import { User } from './users.entity';
 
 @Injectable()
 export class UsersService {
-  constructor(private usersRepository: UsersRepository) {}
+  constructor(
+    @InjectRepository(User) private usersRepository: Repository<User>,
+  ) {}
 
   async getAll() {
-    return await this.usersRepository.findAll();
+    return await this.usersRepository.find();
   }
 
   async getOne(id: string) {
-    return await this.usersRepository.findOne(id);
+    return await this.usersRepository.findOneBy({ id });
   }
 
   async create(dto: CreateUserDto) {
-    const id = generateId();
-    const createdAt = Date.now();
-    const entity: User = {
-      id,
-      createdAt,
-      updatedAt: createdAt,
-      version: 1,
-      ...dto,
-    };
-
-    const user = await this.usersRepository.create(entity);
-
-    return { ...user, password: undefined };
+    return await this.usersRepository.save(dto);
   }
 
   async update(id: string, dto: UpdatePasswordDto) {
@@ -40,23 +30,27 @@ export class UsersService {
       return;
     }
 
-    const { password: oldPassword, version } = user;
+    const { password: oldPassword } = user;
 
     if (oldPassword === dto.oldPassword) {
-      const user = await this.usersRepository.update(
-        id,
-        dto.newPassword,
-        Date.now(),
-        version + 1,
-      );
+      const user = await this.usersRepository
+        .createQueryBuilder()
+        .update(User)
+        .set({ password: dto.newPassword })
+        .where('id = :id', { id })
+        .returning('*')
+        .execute()
+        .then((r) => r.raw[0]);
 
-      return { ...user, password: undefined };
+      return user;
     } else {
       return 'Invalid old password';
     }
   }
 
   async delete(id: string) {
-    return await this.usersRepository.delete(id);
+    const { affected: isDeleted } = await this.usersRepository.delete(id);
+
+    return isDeleted;
   }
 }

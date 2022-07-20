@@ -1,40 +1,45 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { v4 as generateId } from 'uuid';
-import { TracksRepository } from './tracks.repository';
 import { CreateTrackDto } from './dto/create-track.dto';
-import { Track } from './tracks.model';
+import { Track } from './tracks.entity';
 import { UpdateTrackDto } from './dto/update-track';
 import { FavoritesService } from 'src/favorites/favorites.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class TracksService {
   constructor(
-    private tracksRepository: TracksRepository,
+    @InjectRepository(Track)
+    private tracksRepository: Repository<Track>,
     @Inject(forwardRef(() => FavoritesService))
     private favoritesService: FavoritesService,
   ) {}
 
   async getAll() {
-    return await this.tracksRepository.findAll();
+    return await this.tracksRepository.find();
   }
 
   async getOne(id: string) {
-    return await this.tracksRepository.findOne(id);
+    return await this.tracksRepository.findOneBy({ id });
   }
 
   async create(dto: CreateTrackDto) {
-    const id = generateId();
-    const entity: Track = { id, ...dto };
-
-    return await this.tracksRepository.create(entity);
+    return await this.tracksRepository.save(dto);
   }
 
   async update(id: string, dto: UpdateTrackDto) {
-    return await this.tracksRepository.update(id, dto);
+    return await this.tracksRepository
+      .createQueryBuilder()
+      .update(Track)
+      .set(dto)
+      .where('id = :id', { id })
+      .returning('*')
+      .execute()
+      .then((r) => r.raw[0]);
   }
 
   async delete(id: string) {
-    const isDeleted = await this.tracksRepository.delete(id);
+    const { affected: isDeleted } = await this.tracksRepository.delete(id);
 
     if (isDeleted) {
       return await Promise.all([

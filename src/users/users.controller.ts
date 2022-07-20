@@ -1,5 +1,6 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
@@ -9,13 +10,16 @@ import {
   Param,
   Post,
   Put,
+  UseInterceptors,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { UsersService } from './users.service';
 import { validate } from 'uuid';
+import { User } from './users.entity';
 
 @Controller('user')
+@UseInterceptors(ClassSerializerInterceptor)
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
@@ -41,7 +45,9 @@ export class UsersController {
   @HttpCode(201)
   @Post()
   async createUser(@Body() body: CreateUserDto) {
-    return await this.usersService.create(body);
+    const user: any = await this.usersService.create(body);
+
+    return new User(user);
   }
 
   @Put('/:id')
@@ -59,7 +65,7 @@ export class UsersController {
       throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
     }
 
-    return user;
+    return new User(user);
   }
 
   @HttpCode(204)
