@@ -28,14 +28,17 @@ export class TracksService {
   }
 
   async update(id: string, dto: UpdateTrackDto) {
-    return await this.tracksRepository
+    const {
+      raw: [updated],
+    } = await this.tracksRepository
       .createQueryBuilder()
       .update(Track)
       .set(dto)
       .where('id = :id', { id })
       .returning('*')
-      .execute()
-      .then((r) => r.raw[0]);
+      .execute();
+
+    return updated;
   }
 
   async delete(id: string) {

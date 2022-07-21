@@ -4,13 +4,13 @@ import {
   Delete,
   Get,
   HttpCode,
-  HttpException,
-  HttpStatus,
   Param,
   ParseUUIDPipe,
   Post,
   Put,
+  UseInterceptors,
 } from '@nestjs/common';
+import { NotFoundInterceptor } from 'src/interceptors';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track';
 import { TracksService } from './tracks.service';
@@ -25,14 +25,9 @@ export class TracksController {
   }
 
   @Get('/:id')
+  @UseInterceptors(NotFoundInterceptor)
   async getOneTrack(@Param('id', new ParseUUIDPipe()) id: string) {
-    const track = await this.tracksService.getOne(id);
-
-    if (!track) {
-      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
-    }
-
-    return track;
+    return await this.tracksService.getOne(id);
   }
 
   @HttpCode(201)
@@ -42,26 +37,18 @@ export class TracksController {
   }
 
   @Put('/:id')
+  @UseInterceptors(NotFoundInterceptor)
   async updateTrack(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() body: UpdateTrackDto,
   ) {
-    const track = await this.tracksService.update(id, body);
-
-    if (!track) {
-      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
-    }
-
-    return track;
+    return await this.tracksService.update(id, body);
   }
 
   @HttpCode(204)
   @Delete('/:id')
+  @UseInterceptors(NotFoundInterceptor)
   async deleteTrack(@Param('id', new ParseUUIDPipe()) id: string) {
-    const isDeleted = await this.tracksService.delete(id);
-
-    if (!isDeleted) {
-      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
-    }
+    return await this.tracksService.delete(id);
   }
 }

@@ -5,6 +5,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { User } from './users.entity';
 
+export const INVALID_OLD_PASSWORD = 'Invalid old password';
+
 @Injectable()
 export class UsersService {
   constructor(
@@ -33,18 +35,19 @@ export class UsersService {
     const { password: oldPassword } = user;
 
     if (oldPassword === dto.oldPassword) {
-      const user = await this.usersRepository
+      const {
+        raw: [updated],
+      } = await this.usersRepository
         .createQueryBuilder()
         .update(User)
         .set({ password: dto.newPassword })
         .where('id = :id', { id })
         .returning('*')
-        .execute()
-        .then((r) => r.raw[0]);
+        .execute();
 
-      return user;
+      return updated;
     } else {
-      return 'Invalid old password';
+      throw new Error(INVALID_OLD_PASSWORD);
     }
   }
 

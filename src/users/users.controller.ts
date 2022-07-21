@@ -3,10 +3,10 @@ import {
   ClassSerializerInterceptor,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   HttpCode,
-  HttpException,
-  HttpStatus,
+  NotFoundException,
   Param,
   ParseUUIDPipe,
   Post,
@@ -15,8 +15,9 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
-import { UsersService } from './users.service';
+import { INVALID_OLD_PASSWORD, UsersService } from './users.service';
 import { User } from './users.entity';
+import { NotFoundInterceptor } from 'src/interceptors';
 
 @Controller('user')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -29,20 +30,15 @@ export class UsersController {
   }
 
   @Get('/:id')
+  @UseInterceptors(NotFoundInterceptor)
   async getOneUser(@Param('id', new ParseUUIDPipe()) id: string) {
-    const user = await this.usersService.getOne(id);
-
-    if (!user) {
-      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
-    }
-
-    return user;
+    return await this.usersService.getOne(id);
   }
 
   @HttpCode(201)
   @Post()
   async createUser(@Body() body: CreateUserDto) {
-    const user: any = await this.usersService.create(body);
+    const user = await this.usersService.create(body);
 
     return new User(user);
   }
@@ -52,26 +48,27 @@ export class UsersController {
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() body: UpdatePasswordDto,
   ) {
-    const user = await this.usersService.update(id, body);
+    try {
+      const user = await this.usersService.update(id, body);
 
-    if (user === 'Invalid old password') {
-      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+      if (!user) {
+        throw new NotFoundException();
+      }
+
+      return new User(user);
+    } catch (err) {
+      if (err.message === INVALID_OLD_PASSWORD) {
+        throw new ForbiddenException();
+      }
+
+      throw err;
     }
-
-    if (!user) {
-      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
-    }
-
-    return new User(user);
   }
 
   @HttpCode(204)
   @Delete('/:id')
+  @UseInterceptors(NotFoundInterceptor)
   async deleteUser(@Param('id', new ParseUUIDPipe()) id: string) {
-    const isDeleted = await this.usersService.delete(id);
-
-    if (!isDeleted) {
-      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
-    }
+    return await this.usersService.delete(id);
   }
 }
