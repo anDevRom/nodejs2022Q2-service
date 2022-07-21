@@ -3,13 +3,16 @@ import {
   Delete,
   Get,
   HttpCode,
-  HttpException,
-  HttpStatus,
   Param,
+  ParseUUIDPipe,
   Post,
+  UseInterceptors,
 } from '@nestjs/common';
+import {
+  NotFoundInterceptor,
+  UnprocessableEntityInterceptor,
+} from 'src/interceptors';
 import { FavoritesService } from './favorites.service';
-import { validate } from 'uuid';
 
 @Controller('favs')
 export class FavoritesController {
@@ -22,82 +25,45 @@ export class FavoritesController {
 
   @HttpCode(201)
   @Post('/album/:id')
-  async addAlbumToFavorites(@Param('id') id: string) {
-    if (!validate(id)) {
-      throw new HttpException('Invalid id', HttpStatus.BAD_REQUEST);
-    }
-
-    const result = await this.favoritesService.addAlbumToFavorite(id);
-
-    if (result === 'Not found') {
-      throw new HttpException('Not Found', HttpStatus.UNPROCESSABLE_ENTITY);
-    }
+  @UseInterceptors(UnprocessableEntityInterceptor)
+  async addAlbumToFavorites(@Param('id', new ParseUUIDPipe()) id: string) {
+    return await this.favoritesService.addAlbumToFavorite(id);
   }
 
   @HttpCode(204)
   @Delete('/album/:id')
-  async removeAlbumFromFavorites(@Param('id') id: string) {
-    if (!validate(id)) {
-      throw new HttpException('Invalid id', HttpStatus.BAD_REQUEST);
-    }
-    const isDeleted = await this.favoritesService.removeAlbumFromFavorite(id);
-
-    if (!isDeleted) {
-      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
-    }
+  @UseInterceptors(NotFoundInterceptor)
+  async removeAlbumFromFavorites(@Param('id', new ParseUUIDPipe()) id: string) {
+    return await this.favoritesService.removeAlbumFromFavorite(id);
   }
 
   @HttpCode(201)
   @Post('/artist/:id')
-  async addArtistToFavorites(@Param('id') id: string) {
-    if (!validate(id)) {
-      throw new HttpException('Invalid id', HttpStatus.BAD_REQUEST);
-    }
-
-    const result = await this.favoritesService.addArtistToFavorite(id);
-
-    if (result === 'Not found') {
-      throw new HttpException('Not Found', HttpStatus.UNPROCESSABLE_ENTITY);
-    }
+  @UseInterceptors(UnprocessableEntityInterceptor)
+  async addArtistToFavorites(@Param('id', new ParseUUIDPipe()) id: string) {
+    return await this.favoritesService.addArtistToFavorite(id);
   }
 
   @HttpCode(204)
   @Delete('/artist/:id')
-  async removeArtistFromFavorites(@Param('id') id: string) {
-    if (!validate(id)) {
-      throw new HttpException('Invalid id', HttpStatus.BAD_REQUEST);
-    }
-    const isDeleted = await this.favoritesService.removeArtistFromFavorite(id);
-
-    if (!isDeleted) {
-      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
-    }
+  @UseInterceptors(NotFoundInterceptor)
+  async removeArtistFromFavorites(
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ) {
+    return await this.favoritesService.removeArtistFromFavorite(id);
   }
 
   @HttpCode(201)
   @Post('/track/:id')
-  async addTrackToFavorites(@Param('id') id: string) {
-    if (!validate(id)) {
-      throw new HttpException('Invalid id', HttpStatus.BAD_REQUEST);
-    }
-
-    const result = await this.favoritesService.addTrackToFavorite(id);
-
-    if (result === 'Not found') {
-      throw new HttpException('Not Found', HttpStatus.UNPROCESSABLE_ENTITY);
-    }
+  @UseInterceptors(UnprocessableEntityInterceptor)
+  async addTrackToFavorites(@Param('id', new ParseUUIDPipe()) id: string) {
+    return await this.favoritesService.addTrackToFavorite(id);
   }
 
   @HttpCode(204)
   @Delete('/track/:id')
-  async removeTrackFromFavorites(@Param('id') id: string) {
-    if (!validate(id)) {
-      throw new HttpException('Invalid id', HttpStatus.BAD_REQUEST);
-    }
-    const isDeleted = await this.favoritesService.removeTrackFromFavorite(id);
-
-    if (!isDeleted) {
-      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
-    }
+  @UseInterceptors(NotFoundInterceptor)
+  async removeTrackFromFavorites(@Param('id', new ParseUUIDPipe()) id: string) {
+    return await this.favoritesService.removeTrackFromFavorite(id);
   }
 }

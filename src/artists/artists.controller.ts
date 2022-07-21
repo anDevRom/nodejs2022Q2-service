@@ -4,13 +4,13 @@ import {
   Delete,
   Get,
   HttpCode,
-  HttpException,
-  HttpStatus,
   Param,
+  ParseUUIDPipe,
   Post,
   Put,
+  UseInterceptors,
 } from '@nestjs/common';
-import { validate } from 'uuid';
+import { NotFoundInterceptor } from 'src/interceptors';
 import { ArtistsService } from './artists.service';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
@@ -25,17 +25,9 @@ export class ArtistsController {
   }
 
   @Get('/:id')
-  async getOneArtist(@Param('id') id: string) {
-    if (!validate(id)) {
-      throw new HttpException('Invalid id', HttpStatus.BAD_REQUEST);
-    }
-    const artist = await this.artistsService.getOne(id);
-
-    if (!artist) {
-      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
-    }
-
-    return artist;
+  @UseInterceptors(NotFoundInterceptor)
+  async getOneArtist(@Param('id', new ParseUUIDPipe()) id: string) {
+    return await this.artistsService.getOne(id);
   }
 
   @HttpCode(201)
@@ -45,29 +37,18 @@ export class ArtistsController {
   }
 
   @Put('/:id')
-  async updateArtist(@Param('id') id: string, @Body() body: UpdateArtistDto) {
-    if (!validate(id)) {
-      throw new HttpException('Invalid id', HttpStatus.BAD_REQUEST);
-    }
-    const artist = await this.artistsService.update(id, body);
-
-    if (!artist) {
-      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
-    }
-
-    return artist;
+  @UseInterceptors(NotFoundInterceptor)
+  async updateArtist(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() body: UpdateArtistDto,
+  ) {
+    return await this.artistsService.update(id, body);
   }
 
   @HttpCode(204)
   @Delete('/:id')
-  async deleteArtist(@Param('id') id: string) {
-    if (!validate(id)) {
-      throw new HttpException('Invalid id', HttpStatus.BAD_REQUEST);
-    }
-    const isDeleted = await this.artistsService.delete(id);
-
-    if (!isDeleted) {
-      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
-    }
+  @UseInterceptors(NotFoundInterceptor)
+  async deleteArtist(@Param('id', new ParseUUIDPipe()) id: string) {
+    return await this.artistsService.delete(id);
   }
 }

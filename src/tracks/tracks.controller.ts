@@ -7,13 +7,13 @@ import {
   HttpException,
   HttpStatus,
   Param,
+  ParseUUIDPipe,
   Post,
   Put,
 } from '@nestjs/common';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { UpdateTrackDto } from './dto/update-track';
 import { TracksService } from './tracks.service';
-import { validate } from 'uuid';
 
 @Controller('track')
 export class TracksController {
@@ -25,10 +25,7 @@ export class TracksController {
   }
 
   @Get('/:id')
-  async getOneTrack(@Param('id') id: string) {
-    if (!validate(id)) {
-      throw new HttpException('Invalid id', HttpStatus.BAD_REQUEST);
-    }
+  async getOneTrack(@Param('id', new ParseUUIDPipe()) id: string) {
     const track = await this.tracksService.getOne(id);
 
     if (!track) {
@@ -45,10 +42,10 @@ export class TracksController {
   }
 
   @Put('/:id')
-  async updateTrack(@Param('id') id: string, @Body() body: UpdateTrackDto) {
-    if (!validate(id)) {
-      throw new HttpException('Invalid id', HttpStatus.BAD_REQUEST);
-    }
+  async updateTrack(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() body: UpdateTrackDto,
+  ) {
     const track = await this.tracksService.update(id, body);
 
     if (!track) {
@@ -60,10 +57,7 @@ export class TracksController {
 
   @HttpCode(204)
   @Delete('/:id')
-  async deleteTrack(@Param('id') id: string) {
-    if (!validate(id)) {
-      throw new HttpException('Invalid id', HttpStatus.BAD_REQUEST);
-    }
+  async deleteTrack(@Param('id', new ParseUUIDPipe()) id: string) {
     const isDeleted = await this.tracksService.delete(id);
 
     if (!isDeleted) {

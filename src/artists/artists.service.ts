@@ -31,14 +31,17 @@ export class ArtistsService {
   }
 
   async update(id: string, dto: UpdateArtistDto) {
-    return await this.artistsRepository
+    const {
+      raw: [updated],
+    } = await this.artistsRepository
       .createQueryBuilder()
       .update(Artist)
       .set(dto)
       .where('id = :id', { id })
       .returning('*')
-      .execute()
-      .then((r) => r.raw[0]);
+      .execute();
+
+    return updated;
   }
 
   async delete(id: string) {

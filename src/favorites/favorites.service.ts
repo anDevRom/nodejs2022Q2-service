@@ -47,30 +47,30 @@ export class FavoritesService {
     const album = await this.albumsService.getOne(id);
 
     if (!album) {
-      return 'Not found';
+      return;
     }
 
-    await this.albumsFavoritesRepository.save({ id });
+    return await this.albumsFavoritesRepository.save({ id });
   }
 
   async addArtistToFavorite(id: string) {
     const artist = await this.artistsService.getOne(id);
 
     if (!artist) {
-      return 'Not found';
+      return;
     }
 
-    await this.artistsFavoritesRepository.save({ id });
+    return await this.artistsFavoritesRepository.save({ id });
   }
 
   async addTrackToFavorite(id: string) {
     const track = await this.tracksService.getOne(id);
 
     if (!track) {
-      return 'Not found';
+      return;
     }
 
-    await this.tracksFavoritesRepository.save({ id });
+    return await this.tracksFavoritesRepository.save({ id });
   }
 
   async removeAlbumFromFavorite(id: string) {

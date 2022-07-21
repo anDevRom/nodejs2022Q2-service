@@ -4,16 +4,16 @@ import {
   Delete,
   Get,
   HttpCode,
-  HttpException,
-  HttpStatus,
   Param,
+  ParseUUIDPipe,
   Post,
   Put,
+  UseInterceptors,
 } from '@nestjs/common';
+import { NotFoundInterceptor } from 'src/interceptors';
 import { AlbumsService } from './albums.service';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
-import { validate } from 'uuid';
 
 @Controller('album')
 export class AlbumsController {
@@ -25,17 +25,9 @@ export class AlbumsController {
   }
 
   @Get('/:id')
-  async getOneAlbum(@Param('id') id: string) {
-    if (!validate(id)) {
-      throw new HttpException('Invalid id', HttpStatus.BAD_REQUEST);
-    }
-    const album = await this.albumsService.getOne(id);
-
-    if (!album) {
-      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
-    }
-
-    return album;
+  @UseInterceptors(NotFoundInterceptor)
+  async getOneAlbum(@Param('id', new ParseUUIDPipe()) id: string) {
+    return await this.albumsService.getOne(id);
   }
 
   @HttpCode(201)
@@ -45,29 +37,18 @@ export class AlbumsController {
   }
 
   @Put('/:id')
-  async updateAlbum(@Param('id') id: string, @Body() body: UpdateAlbumDto) {
-    if (!validate(id)) {
-      throw new HttpException('Invalid id', HttpStatus.BAD_REQUEST);
-    }
-    const album = await this.albumsService.update(id, body);
-
-    if (!album) {
-      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
-    }
-
-    return album;
+  @UseInterceptors(NotFoundInterceptor)
+  async updateAlbum(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() body: UpdateAlbumDto,
+  ) {
+    return await this.albumsService.update(id, body);
   }
 
   @HttpCode(204)
   @Delete('/:id')
-  async deleteAlbum(@Param('id') id: string) {
-    if (!validate(id)) {
-      throw new HttpException('Invalid id', HttpStatus.BAD_REQUEST);
-    }
-    const isDeleted = await this.albumsService.delete(id);
-
-    if (!isDeleted) {
-      throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
-    }
+  @UseInterceptors(NotFoundInterceptor)
+  async deleteAlbum(@Param('id', new ParseUUIDPipe()) id: string) {
+    return await this.albumsService.delete(id);
   }
 }

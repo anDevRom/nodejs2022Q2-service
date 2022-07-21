@@ -8,6 +8,7 @@ import {
   HttpException,
   HttpStatus,
   Param,
+  ParseUUIDPipe,
   Post,
   Put,
   UseInterceptors,
@@ -15,7 +16,6 @@ import {
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { UsersService } from './users.service';
-import { validate } from 'uuid';
 import { User } from './users.entity';
 
 @Controller('user')
@@ -29,10 +29,7 @@ export class UsersController {
   }
 
   @Get('/:id')
-  async getOneUser(@Param('id') id: string) {
-    if (!validate(id)) {
-      throw new HttpException('Invalid id', HttpStatus.BAD_REQUEST);
-    }
+  async getOneUser(@Param('id', new ParseUUIDPipe()) id: string) {
     const user = await this.usersService.getOne(id);
 
     if (!user) {
@@ -51,10 +48,10 @@ export class UsersController {
   }
 
   @Put('/:id')
-  async updateUser(@Param('id') id: string, @Body() body: UpdatePasswordDto) {
-    if (!validate(id)) {
-      throw new HttpException('Invalid id', HttpStatus.BAD_REQUEST);
-    }
+  async updateUser(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() body: UpdatePasswordDto,
+  ) {
     const user = await this.usersService.update(id, body);
 
     if (user === 'Invalid old password') {
@@ -70,10 +67,7 @@ export class UsersController {
 
   @HttpCode(204)
   @Delete('/:id')
-  async deleteUser(@Param('id') id: string) {
-    if (!validate(id)) {
-      throw new HttpException('Invalid id', HttpStatus.BAD_REQUEST);
-    }
+  async deleteUser(@Param('id', new ParseUUIDPipe()) id: string) {
     const isDeleted = await this.usersService.delete(id);
 
     if (!isDeleted) {

@@ -35,14 +35,17 @@ export class AlbumsService {
   }
 
   async update(id: string, dto: UpdateAlbumDto) {
-    return await this.albumsRepository
+    const {
+      raw: [updated],
+    } = await this.albumsRepository
       .createQueryBuilder()
       .update(Album)
       .set(dto)
       .where('id = :id', { id })
       .returning('*')
-      .execute()
-      .then((r) => r.raw[0]);
+      .execute();
+
+    return updated;
   }
 
   async delete(id: string) {
