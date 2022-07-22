@@ -13,6 +13,6 @@ async function bootstrap() {
   const docFile = readFileSync('./doc/api.yaml', 'utf-8');
   SwaggerModule.setup('doc', app, parse(docFile));
 
-  await app.listen(process.env.PORT);
+  await app.listen(process.env.APP_PORT);
 }
 bootstrap();

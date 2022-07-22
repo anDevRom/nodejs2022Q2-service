@@ -28,11 +28,11 @@ import { User } from './users/users.entity';
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: 'postgres',
-      database: 'home-collection',
+      host: 'postgres',
+      port: Number(process.env.DB_PORT),
+      username: process.env.POSTGRES_USER,
+      password: process.env.POSTGRES_PASSWORD,
+      database: process.env.POSTGRES_DB,
       entities: [
         Album,
         Artist,
