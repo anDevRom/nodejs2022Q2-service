@@ -14,6 +14,7 @@ npm i -g @nestjs/cli
 ```
 git clone https://github.com/anDevRom/nodejs2022Q2-service
 ```
+After change branch to task-7
 
 ## Installing NPM modules
 
@@ -24,8 +25,10 @@ npm install
 ## Running application
 
 ```
-npm start
+docker compose up
 ```
+
+### Migrations run automatically
 
 After starting the app on port (4000 as default) you can open
 in your browser OpenAPI documentation by typing http://localhost:4000/doc/.
@@ -47,8 +50,20 @@ To run only one of all test suites
 npm run test -- <path to suite>
 ```
 
-### Linter errors check
+## Linter errors check
 
 ```
 npm run lint
+```
+
+## Vulnerabilities script
+
+```
+npm run image:scan
+```
+
+## Images repository on Docker Hub
+
+```
+https://hub.docker.com/repository/docker/andevrom/nodejs2022q-service
 ```
