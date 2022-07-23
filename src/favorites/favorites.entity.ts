@@ -1,6 +1,6 @@
-import { Album } from 'src/albums/albums.entity';
-import { Artist } from 'src/artists/artists.entity';
-import { Track } from 'src/tracks/tracks.entity';
+import { Album } from '../albums/albums.entity';
+import { Artist } from '../artists/artists.entity';
+import { Track } from '../tracks/tracks.entity';
 import { Entity, OneToOne, PrimaryColumn } from 'typeorm';
 
 @Entity()

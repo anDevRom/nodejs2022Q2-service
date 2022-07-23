@@ -1,5 +1,5 @@
-import { Artist } from 'src/artists/artists.entity';
-import { Entity, Column, PrimaryGeneratedColumn, OneToOne } from 'typeorm';
+import { Artist } from '../artists/artists.entity';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToMany } from 'typeorm';
 
 @Entity()
 export class Album {
@@ -12,7 +12,7 @@ export class Album {
   @Column()
   year: number;
 
-  @OneToOne(() => Artist, (artist) => artist.id)
+  @ManyToMany(() => Artist, (artist) => artist.id)
   @Column({ nullable: true })
   artistId: string | null;
 }

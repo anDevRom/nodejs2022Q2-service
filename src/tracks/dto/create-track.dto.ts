@@ -1,4 +1,4 @@
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from '@nestjs/class-validator';
 
 export class CreateTrackDto {
   @IsString()

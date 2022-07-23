@@ -19,9 +19,12 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "image:scan": "docker scan nodejs2022q-service_main"
+    "image:scan": "docker scan nodejs2022q-service_main",
+    "typeorm": "typeorm-ts-node-esm -d ./ormconfig.ts",
+    "migrate": "npm run typeorm migration:run"
   },
   "dependencies": {
+    "@nestjs/class-validator": "^0.13.4",
     "@nestjs/common": "^8.0.0",
     "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^8.0.0",
@@ -32,7 +35,6 @@
     "@nestjs/typeorm": "^9.0.0",
     "bcrypt": "^5.0.1",
     "class-transformer": "^0.5.1",
-    "class-validator": "^0.13.2",
     "dotenv": "^16.0.1",
     "http-status-codes": "^2.2.0",
     "pg": "^8.7.3",

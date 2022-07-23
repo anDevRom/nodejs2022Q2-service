@@ -1,6 +1,6 @@
-import { Album } from 'src/albums/albums.entity';
-import { Artist } from 'src/artists/artists.entity';
-import { Entity, Column, PrimaryGeneratedColumn, OneToOne } from 'typeorm';
+import { Album } from '../albums/albums.entity';
+import { Artist } from '../artists/artists.entity';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToMany } from 'typeorm';
 
 @Entity()
 export class Track {
@@ -10,11 +10,11 @@ export class Track {
   @Column()
   name: string;
 
-  @OneToOne(() => Artist, (artist) => artist.id)
+  @ManyToMany(() => Artist, (artist) => artist.id)
   @Column({ nullable: true })
   artistId: string | null;
 
-  @OneToOne(() => Album, (album) => album.id)
+  @ManyToMany(() => Album, (album) => album.id)
   @Column({ nullable: true })
   albumId: string | null;
 
