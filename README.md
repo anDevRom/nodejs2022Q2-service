@@ -8,16 +8,18 @@
 ```console
 npm i -g @nestjs/cli
 ```
+- Docker - [Download & Install Docker](https://docs.docker.com/get-docker/)
 
 ## Downloading
 
 ```
 git clone https://github.com/anDevRom/nodejs2022Q2-service
 ```
-After change branch to task-7
 
 ## Installing NPM modules
 
+- Change branch to task-7
+- Install dependencies
 ```
 npm install
 ```
@@ -64,6 +66,4 @@ npm run image:scan
 
 ## Images repository on Docker Hub
 
-```
-https://hub.docker.com/repository/docker/andevrom/nodejs2022q-service
-```
+- [Apps images](https://hub.docker.com/repository/docker/andevrom/nodejs2022q-service)
