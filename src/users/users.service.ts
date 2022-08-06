@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { User } from './users.entity';
+import * as bcrypt from 'bcrypt';
 
 export const INVALID_OLD_PASSWORD = 'Invalid old password';
 
@@ -12,6 +13,10 @@ export class UsersService {
   constructor(
     @InjectRepository(User) private usersRepository: Repository<User>,
   ) {}
+
+  hashData(data: string) {
+    return bcrypt.hash(data, Number(process.env.CRYPT_SALT));
+  }
 
   async getAll() {
     return await this.usersRepository.find();
@@ -22,7 +27,15 @@ export class UsersService {
   }
 
   async create(dto: CreateUserDto) {
-    return await this.usersRepository.save(dto);
+    const { password } = dto;
+
+    const hashedPassword = await this.hashData(password);
+
+    return await this.usersRepository.save({
+      ...dto,
+      password: hashedPassword,
+      refreshToken: ''
+    });
   }
 
   async update(id: string, dto: UpdatePasswordDto) {
@@ -49,6 +62,17 @@ export class UsersService {
     } else {
       throw new Error(INVALID_OLD_PASSWORD);
     }
+  }
+
+  async updateRefreshToken(id: string, newRefreshToken: string) {
+    const hashedNewRefreshToken = await this.hashData(newRefreshToken);
+    
+    await this.usersRepository
+      .createQueryBuilder()
+      .update(User)
+      .set({ refreshToken: hashedNewRefreshToken })
+      .where('id = :id', { id })
+      .execute();
   }
 
   async delete(id: string) {

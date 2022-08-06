@@ -1,3 +1,4 @@
+import { IsOptional } from '@nestjs/class-validator';
 import { Exclude, Transform } from 'class-transformer';
 import {
   Entity,
@@ -19,6 +20,10 @@ export class User {
   @Column()
   @Exclude()
   password: string;
+
+  @Column()
+  @Exclude()
+  refreshToken: string;
 
   @VersionColumn()
   version: number;

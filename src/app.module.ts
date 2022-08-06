@@ -27,9 +27,9 @@ import { AuthModule } from './auth/auth.module';
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
       entities: ['dist/src/**/*.entity.js'],
-      synchronize: false,
-      migrations: ['dist/db/migrations/**.js'],
-      migrationsRun: true,
+      synchronize: true, // TODO
+      // migrations: ['dist/db/migrations/**.js'],
+      // migrationsRun: true,
     }),
   ],
 })
