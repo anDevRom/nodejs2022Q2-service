@@ -7,6 +7,8 @@ import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
+import { APP_GUARD } from '@nestjs/core';
+import { AccessTokenGuard } from './auth/guards/access-token.guards';
 
 @Module({
   imports: [
@@ -32,5 +34,9 @@ import { AuthModule } from './auth/auth.module';
       // migrationsRun: true,
     }),
   ],
+  providers: [{
+    provide: APP_GUARD,
+    useClass: AccessTokenGuard
+  }]
 })
 export class AppModule {}

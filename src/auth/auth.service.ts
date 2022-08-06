@@ -55,7 +55,7 @@ export class AuthService {
       return;
     }
 
-    const passwordMatches = bcrypt.compare(dto.password, user.password);
+    const passwordMatches = await bcrypt.compare(dto.password, user.password);
 
     if (!passwordMatches) {
       return;
@@ -67,5 +67,22 @@ export class AuthService {
     return tokens;
   }
 
-  async refresh() {}
+  async refresh(id: string, refreshToken: string) {
+    const user = await this.usersService.getOne(id);
+
+    if (!user || !user.refreshToken) {
+      return;
+    }
+
+    const tokenMatches = await bcrypt.compare(refreshToken, user.refreshToken);
+  
+    if (!tokenMatches) {
+      return;
+    }
+
+    const tokens = await this.getTokens(user.id, user.login);
+    await this.updateRefreshToken(user.id, tokens.refreshToken);
+
+    return tokens;
+  }
 }

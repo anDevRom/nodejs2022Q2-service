@@ -27,7 +27,7 @@ export class UsersService {
   }
 
   async getOneByLogin(login: string) {
-    return await this.usersRepository.findBy({ login })[0];
+    return await this.usersRepository.findOneBy({ login });
   }
 
   async create(dto: CreateUserDto) {
