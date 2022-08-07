@@ -34,9 +34,11 @@ import { AccessTokenGuard } from './auth/guards/access-token.guards';
       // migrationsRun: true,
     }),
   ],
-  providers: [{
-    provide: APP_GUARD,
-    useClass: AccessTokenGuard
-  }]
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: AccessTokenGuard,
+    },
+  ],
 })
 export class AppModule {}

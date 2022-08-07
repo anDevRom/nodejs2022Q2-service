@@ -8,35 +8,35 @@ import * as bcrypt from 'bcrypt';
 export class AuthService {
   constructor(
     private jwtService: JwtService,
-    private usersService: UsersService
+    private usersService: UsersService,
   ) {}
 
   async getTokens(userId: string, login: string) {
     const tokenPayload = {
       sub: userId,
-      login
+      login,
     };
-    
+
     const accessTokenOptions: JwtSignOptions = {
       secret: process.env.JWT_SECRET_KEY,
-      expiresIn: process.env.TOKEN_EXPIRE_TIME
+      expiresIn: process.env.TOKEN_EXPIRE_TIME,
     };
 
     const refreshTokenOptions: JwtSignOptions = {
       secret: process.env.JWT_SECRET_REFRESH_KEY,
-      expiresIn: process.env.TOKEN_REFRESH_EXPIRE_TIME
+      expiresIn: process.env.TOKEN_REFRESH_EXPIRE_TIME,
     };
 
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(tokenPayload, accessTokenOptions),
-      this.jwtService.signAsync(tokenPayload, refreshTokenOptions)
+      this.jwtService.signAsync(tokenPayload, refreshTokenOptions),
     ]);
 
     return { accessToken, refreshToken };
   }
 
   async updateRefreshToken(id: string, newRefreshToken: string) {
-     await this.usersService.updateRefreshToken(id, newRefreshToken);
+    await this.usersService.updateRefreshToken(id, newRefreshToken);
   }
 
   async signUp(dto: CreateUserDto) {
@@ -75,7 +75,7 @@ export class AuthService {
     }
 
     const tokenMatches = await bcrypt.compare(refreshToken, user.refreshToken);
-  
+
     if (!tokenMatches) {
       return;
     }

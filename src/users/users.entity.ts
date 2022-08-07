@@ -1,4 +1,3 @@
-import { IsOptional } from '@nestjs/class-validator';
 import { Exclude, Transform } from 'class-transformer';
 import {
   Entity,

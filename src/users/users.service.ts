@@ -38,7 +38,7 @@ export class UsersService {
     return await this.usersRepository.save({
       ...dto,
       password: hashedPassword,
-      refreshToken: ''
+      refreshToken: '',
     });
   }
 
@@ -51,7 +51,10 @@ export class UsersService {
 
     const { password: hashedOldPassword } = user;
 
-    const passwordMatches = await bcrypt.compare(dto.oldPassword, hashedOldPassword);
+    const passwordMatches = await bcrypt.compare(
+      dto.oldPassword,
+      hashedOldPassword,
+    );
 
     if (passwordMatches) {
       const {
@@ -72,7 +75,7 @@ export class UsersService {
 
   async updateRefreshToken(id: string, newRefreshToken: string) {
     const hashedNewRefreshToken = await this.hashData(newRefreshToken);
-    
+
     await this.usersRepository
       .createQueryBuilder()
       .update(User)
