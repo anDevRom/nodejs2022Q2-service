@@ -57,3 +57,22 @@ npm run test:auth -- <path to suite>
 ```
 npm run lint
 ```
+
+## Logging
+
+Log files stored in logs directory
+
+Types of log file:
+- http_log (OK responses)
+- http_error (ERROR responses)
+- app_error (Internal server errors)
+
+Env variables:
+```
+LOGGING_LEVEL=1 // log
+LOGGING_LEVEL=2 // log, error
+LOGGING_LEVEL=3 // log, error, warn
+
+LOGGING_FILE_SIZE // max size of log file
+```
+
