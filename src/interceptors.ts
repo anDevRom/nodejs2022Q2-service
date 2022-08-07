@@ -5,7 +5,7 @@ import {
   NestInterceptor,
   NotFoundException,
   UnprocessableEntityException,
-  UnauthorizedException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { map, Observable } from 'rxjs';
 
@@ -25,12 +25,12 @@ export class NotFoundInterceptor implements NestInterceptor {
 }
 
 @Injectable()
-export class UnauthorizedInterceptor implements NestInterceptor {
+export class ForbiddenInterceptor implements NestInterceptor {
   intercept(_: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
       map((data) => {
         if (!data) {
-          throw new UnauthorizedException();
+          throw new ForbiddenException();
         }
 
         return data;

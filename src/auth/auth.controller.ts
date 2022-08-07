@@ -1,7 +1,5 @@
-import { Body, Controller, Post, UseGuards, UseInterceptors, Req } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { Request } from 'express';
-import { UnauthorizedInterceptor } from 'src/interceptors';
+import { Body, Controller, Post, UseGuards, UseInterceptors, Req, HttpCode } from '@nestjs/common';
+import { ForbiddenInterceptor } from 'src/interceptors';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { AuthService } from './auth.service';
 import { GetCurrentUser } from './decorators/get-current-user.decorator';
@@ -16,19 +14,20 @@ export class AuthController {
 
   @Public()
   @Post('signup')
+  @HttpCode(201)
   async signUp(@Body() dto: CreateUserDto) {
     return await this.authService.signUp(dto);
   }
 
   @Public()
-  @UseInterceptors(UnauthorizedInterceptor)
+  @UseInterceptors(ForbiddenInterceptor)
   @Post('login')
   async login(@Body() dto: CreateUserDto) {
     return await this.authService.login(dto);
   }
 
   @Public()
-  @UseInterceptors(UnauthorizedInterceptor)
+  @UseInterceptors(ForbiddenInterceptor)
   @UseGuards(RefreshTokenGuard)
   @Post('refresh')
   async refresh(@GetCurrentUser() user: any) {

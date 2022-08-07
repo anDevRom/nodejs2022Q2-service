@@ -49,9 +49,11 @@ export class UsersService {
       return;
     }
 
-    const { password: oldPassword } = user;
+    const { password: hashedOldPassword } = user;
 
-    if (oldPassword === dto.oldPassword) {
+    const passwordMatches = await bcrypt.compare(dto.oldPassword, hashedOldPassword);
+
+    if (passwordMatches) {
       const {
         raw: [updated],
       } = await this.usersRepository
