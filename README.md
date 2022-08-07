@@ -18,7 +18,7 @@ git clone https://github.com/anDevRom/nodejs2022Q2-service
 
 ## Installing NPM modules
 
-- Change branch to task-7
+- Change branch to task-8/authentication
 - Install dependencies
 ```
 npm install
@@ -40,16 +40,16 @@ For more information about OpenAPI/Swagger please visit https://swagger.io/.
 
 After application running open new terminal and enter:
 
-To run all tests without authorization
+To run all tests with authorization
 
 ```
-npm run test
+npm run test:auth
 ```
 
 To run only one of all test suites
 
 ```
-npm run test -- <path to suite>
+npm run test:auth -- <path to suite>
 ```
 
 ## Linter errors check
@@ -57,13 +57,3 @@ npm run test -- <path to suite>
 ```
 npm run lint
 ```
-
-## Vulnerabilities script
-
-```
-npm run image:scan
-```
-
-## Images repository on Docker Hub
-
-- [Apps images](https://hub.docker.com/repository/docker/andevrom/nodejs2022q-service)
