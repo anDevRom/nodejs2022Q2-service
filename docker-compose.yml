@@ -1,0 +1,42 @@
+version: '3.9'
+
+services:
+  main:
+    container_name: home-collection-server
+    build:
+      context: .
+      dockerfile: ./Dockerfile.server 
+    environment:
+      - APP_PORT
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules   
+    ports:
+      - $APP_PORT:$APP_PORT
+    depends_on:
+      - postgres
+    networks:
+      - home-collection-net
+    restart: always
+  postgres:
+    container_name: home-collection-db
+    build:
+      context: .
+      dockerfile: ./Dockerfile.db
+    environment:
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - home-collection-net  
+    restart: always
+
+volumes:
+  pgdata:
+
+networks:
+  home-collection-net:
+    name: home-collection-net
+    driver: bridge     
