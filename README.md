@@ -60,7 +60,7 @@ npm run lint
 
 ## Logging
 
-Log files stored in logs directory
+Log files stored in logs directory in root (need to create)
 
 Types of log file:
 - http_log (OK responses)
